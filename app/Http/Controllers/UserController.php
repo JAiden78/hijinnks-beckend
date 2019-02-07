@@ -40,7 +40,7 @@ class UserController extends Controller {
         $data['user'] = User::where('id', $userid)
                 ->withCount('isFollowing', 'Rsvp', 'Following', 'Followers', 'Intrest', 'Invites')
                 ->first();
-        $data['events'] = Event::selectRaw("*,( 6371 * acos( cos( radians($this->lat))*cos( radians(lat) ) * cos( radians(lng) - radians($this->lng) ) + sin( radians($this->lat) ) * sin( radians(lat) ) ) ) AS distance")
+        $data['events'] = Event::selectRaw("*,3956 * 2 * ASIN(SQRT(POWER(SIN(($this->lat - lat) * pi()/180 / 2), 2) + COS($this->lat * pi()/180) * COS(lat * pi()/180) * POWER(SIN(($this->lng - lng) *  pi()/180 / 2), 2) )) as distance")
                 ->whereNotIn('user_id', $blocked_ids)
                 ->whereIn('id', $events)
                 ->with('user', 'likes.user', 'comments.user', 'attachments', 'Invites.user', 'interests', 'interests.interest', 'arrived.user')
@@ -56,7 +56,7 @@ class UserController extends Controller {
                 ->withCount('likes', 'arrived', 'userArrived', 'userLiked')
                 ->get();
 
-        $data['my_events'] = Event::selectRaw("*,( 6371 * acos( cos( radians($this->lat))*cos( radians(lat) ) * cos( radians(lng) - radians($this->lng) ) + sin( radians($this->lat) ) * sin( radians(lat) ) ) ) AS distance")
+        $data['my_events'] = Event::selectRaw("*,3956 * 2 * ASIN(SQRT(POWER(SIN(($this->lat - lat) * pi()/180 / 2), 2) + COS($this->lat * pi()/180) * COS(lat * pi()/180) * POWER(SIN(($this->lng - lng) *  pi()/180 / 2), 2) )) as distance")
                 ->whereNotIn('user_id', $blocked_ids)
                 ->where('user_id', $userid)
                 ->with('user', 'likes.user', 'comments.user', 'attachments', 'Invites.user', 'interests', 'interests.interest', 'arrived.user')

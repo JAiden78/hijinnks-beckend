@@ -259,7 +259,7 @@ class EventsController extends Controller {
         if (isset($request['event_id'])) {
             $message = 'Event Updated SuccessFully';
         }
-        $event = Event::selectRaw("*,( 6371 * acos( cos( radians($this->lat))*cos( radians(lat) ) * cos( radians(lng) - radians($this->lng) ) + sin( radians($this->lat) ) * sin( radians(lat) ) ) ) AS distance")
+        $event = Event::selectRaw("*,3956 * 2 * ASIN(SQRT(POWER(SIN(($this->lat - lat) * pi()/180 / 2), 2) + COS($this->lat * pi()/180) * COS(lat * pi()/180) * POWER(SIN(($this->lng - lng) *  pi()/180 / 2), 2) )) as distance")
                 ->with('user', 'likes', 'likes.user', 'comments', 'comments.user', 'attachments', 'interests', 'interests.interest','Invites.user', 'Reoccurance')
                 ->orderBy('utc_event_time', 'desc')
                 ->where('id', $add_event->id)
@@ -298,7 +298,7 @@ class EventsController extends Controller {
 
     function getMyEvents() {
         $blocked_ids = BlockUser::select('user_id')->where(array('blocked_id' => $this->userId))->get()->toArray();
-        $data['events'] = Event::selectRaw("*,( 6371 * acos( cos( radians($this->lat))*cos( radians(lat) ) * cos( radians(lng) - radians($this->lng) ) + sin( radians($this->lat) ) * sin( radians(lat) ) ) ) AS distance")
+        $data['events'] = Event::selectRaw("*,3956 * 2 * ASIN(SQRT(POWER(SIN(($this->lat - lat) * pi()/180 / 2), 2) + COS($this->lat * pi()/180) * COS(lat * pi()/180) * POWER(SIN(($this->lng - lng) *  pi()/180 / 2), 2) )) as distance")
                 ->where('user_id', $this->userId)
                 ->with('user', 'likes.user', 'comments.user', 'Invites.user', 'attachments', 'interests', 'interests.interest', 'arrived.user')
                 ->with(['comments' => function($query)use ($blocked_ids) {
@@ -319,7 +319,7 @@ class EventsController extends Controller {
     
     function getMyInvitedEvents() {
         $blocked_ids = BlockUser::select('user_id')->where(array('blocked_id' => $this->userId))->get()->toArray();
-        $data['events'] = Event::selectRaw("*,( 6371 * acos( cos( radians($this->lat))*cos( radians(lat) ) * cos( radians(lng) - radians($this->lng) ) + sin( radians($this->lat) ) * sin( radians(lat) ) ) ) AS distance")
+        $data['events'] = Event::selectRaw("*,3956 * 2 * ASIN(SQRT(POWER(SIN(($this->lat - lat) * pi()/180 / 2), 2) + COS($this->lat * pi()/180) * COS(lat * pi()/180) * POWER(SIN(($this->lng - lng) *  pi()/180 / 2), 2) )) as distance")
 //                ->where('user_id', $this->userId)
                 ->with('user', 'likes.user', 'comments.user', 'Invites.user', 'attachments', 'interests', 'interests.interest', 'arrived.user')
                 ->with(['comments' => function($query)use ($blocked_ids) {
@@ -332,7 +332,7 @@ class EventsController extends Controller {
                         $query->whereNotIn('user_id', $blocked_ids);
                     }])
 //                    ->where('utc_event_end_date', '>', Carbon::now())
-                ->orderBy('utc_event_time', 'desc')->orderBy('distance', 'asc')
+                ->orderBy('utc_event_time', 'asc')->orderBy('distance', 'asc')
                 ->withCount('likes', 'arrived', 'userArrived', 'userLiked')
                 ->whereHas('userInvites')
                 ->get();
@@ -344,7 +344,7 @@ class EventsController extends Controller {
         $events = EventIntrest::where('interest_id', $interest_id)->pluck('event_id')->toArray();
         
         $blocked_ids = BlockUser::select('user_id')->where(array('blocked_id' => $this->userId))->get()->toArray();
-        $data['events'] = Event::selectRaw("*,( 6371 * acos( cos( radians($this->lat))*cos( radians(lat) ) * cos( radians(lng) - radians($this->lng) ) + sin( radians($this->lat) ) * sin( radians(lat) ) ) ) AS distance")
+        $data['events'] = Event::selectRaw("*,3956 * 2 * ASIN(SQRT(POWER(SIN(($this->lat - lat) * pi()/180 / 2), 2) + COS($this->lat * pi()/180) * COS(lat * pi()/180) * POWER(SIN(($this->lng - lng) *  pi()/180 / 2), 2) )) as distance")
                 ->whereIn('id', $events)
                 ->with('user', 'likes.user', 'comments.user', 'Invites.user', 'attachments', 'interests', 'interests.interest', 'arrived.user')
                 ->with(['comments' => function($query)use ($blocked_ids) {
@@ -566,7 +566,7 @@ class EventsController extends Controller {
         if (isset($request['event_id'])) {
             $message = 'Event Updated SuccessFully';
         }
-        $event = Event::selectRaw("*,( 6371 * acos( cos( radians($this->lat))*cos( radians(lat) ) * cos( radians(lng) - radians($this->lng) ) + sin( radians($this->lat) ) * sin( radians(lat) ) ) ) AS distance")
+        $event = Event::selectRaw("*,3956 * 2 * ASIN(SQRT(POWER(SIN(($this->lat - lat) * pi()/180 / 2), 2) + COS($this->lat * pi()/180) * COS(lat * pi()/180) * POWER(SIN(($this->lng - lng) *  pi()/180 / 2), 2) )) as distance")
                         ->with('user', 'likes', 'likes.user', 'comments', 'comments.user', 'attachments', 'interests', 'interests.interest','Invites.user', 'Reoccurance')
                         ->orderBy('utc_event_time', 'desc')
                         ->where('id', $add_event->id)

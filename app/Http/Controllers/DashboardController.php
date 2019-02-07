@@ -56,7 +56,7 @@ class DashboardController extends Controller {
         $blocked_ids = BlockUser::select('user_id')->where(array('blocked_id' => $this->userId))->get()->toArray();
         $events = EventFollower::select('event_id')->where(array('user_id' => $user_id, 'is_rsvpd' => 1))->get()->toArray();
 //return sendSuccess('', $events);
-        $data['events'] = Event::selectRaw("*,( 6371 * acos( cos( radians($this->lat))*cos( radians(lat) ) * cos( radians(lng) - radians($this->lng) ) + sin( radians($this->lat) ) * sin( radians(lat) ) ) ) AS distance")
+        $data['events'] = Event::selectRaw("*,3956 * 2 * ASIN(SQRT(POWER(SIN(($this->lat - lat) * pi()/180 / 2), 2) + COS($this->lat * pi()/180) * COS(lat * pi()/180) * POWER(SIN(($this->lng - lng) *  pi()/180 / 2), 2) )) as distance")
 //                        ->whereNotIn('user_id', $blocked_ids)
                 ->whereIn('id', $events)
                 ->with('user', 'likes.user', 'comments.user', 'attachments', 'interests', 'interests.interest', 'Invites.user', 'arrived.user')
@@ -84,7 +84,7 @@ class DashboardController extends Controller {
         $blocked_ids = BlockUser::select('user_id')->where(array('blocked_id' => $this->userId))->get()->toArray();
         $skip = $_GET['skip'] * 10;
         $events = EventLike::select('event_id')->where(array('user_id' => $this->userId))->get()->toArray();
-        $data['events'] = Event::selectRaw("*,( 6371 * acos( cos( radians($this->lat))*cos( radians(lat) ) * cos( radians(lng) - radians($this->lng) ) + sin( radians($this->lat) ) * sin( radians(lat) ) ) ) AS distance")
+        $data['events'] = Event::selectRaw("*,3956 * 2 * ASIN(SQRT(POWER(SIN(($this->lat - lat) * pi()/180 / 2), 2) + COS($this->lat * pi()/180) * COS(lat * pi()/180) * POWER(SIN(($this->lng - lng) *  pi()/180 / 2), 2) )) as distance")
                         ->whereNotIn('user_id', $blocked_ids)->whereIn('id', $events)
                         ->with('user', 'likes.user', 'comments.user', 'attachments', 'interests', 'interests.interest', 'Invites.user', 'arrived.user')
                         ->with(['comments' => function($query)use ($blocked_ids) {
@@ -121,7 +121,7 @@ class DashboardController extends Controller {
             if (!$ids_ordered) {
                 $ids_ordered = '';
             }
-            $data['events'] = Event::selectRaw("*,( 6371 * acos( cos( radians($this->lat))*cos( radians(lat) ) * cos( radians(lng) - radians($this->lng) ) + sin( radians($this->lat) ) * sin( radians(lat) ) ) ) AS distance,RIGHT(`event_date`,LOCATE(' ',`event_date`) - 2) AS time")
+            $data['events'] = Event::selectRaw("*,3956 * 2 * ASIN(SQRT(POWER(SIN(($this->lat - lat) * pi()/180 / 2), 2) + COS($this->lat * pi()/180) * COS(lat * pi()/180) * POWER(SIN(($this->lng - lng) *  pi()/180 / 2), 2) )) as distance,RIGHT(`event_date`,LOCATE(' ',`event_date`) - 2) AS time")
                             ->where('utc_event_end_date', '>', Carbon::now())
                             ->whereNotIn('user_id', $blocked_ids)
                             ->whereHas('user', function ($query) use($follower) {
@@ -151,7 +151,7 @@ class DashboardController extends Controller {
             return sendSuccess('', $data);
         }
         if ($filter == 'Latest') {
-            $data['events'] = Event::selectRaw("*,( 6371 * acos( cos( radians($this->lat))*cos( radians(lat) ) * cos( radians(lng) - radians($this->lng) ) + sin( radians($this->lat) ) * sin( radians(lat) ) ) ) AS distance,RIGHT(`event_date`,LOCATE(' ',`event_date`) - 2) AS time")
+            $data['events'] = Event::selectRaw("*,3956 * 2 * ASIN(SQRT(POWER(SIN(($this->lat - lat) * pi()/180 / 2), 2) + COS($this->lat * pi()/180) * COS(lat * pi()/180) * POWER(SIN(($this->lng - lng) *  pi()/180 / 2), 2) )) as distance,RIGHT(`event_date`,LOCATE(' ',`event_date`) - 2) AS time")
                             ->where('utc_event_end_date', '>', Carbon::now())
                             ->whereNotIn('user_id', $blocked_ids)
                             ->whereHas('user', function ($query) use($follower) {
@@ -187,7 +187,7 @@ class DashboardController extends Controller {
             }
             $ids_to_get = EventIntrest::select('event_id')->whereIn('interest_id', $user_intrests)->groupBy('event_id')
                             ->get()->toArray();
-            $data['events'] = Event::selectRaw("*,( 6371 * acos( cos( radians($this->lat))*cos( radians(lat) ) * cos( radians(lng) - radians($this->lng) ) + sin( radians($this->lat) ) * sin( radians(lat) ) ) ) AS distance")
+            $data['events'] = Event::selectRaw("*,3956 * 2 * ASIN(SQRT(POWER(SIN(($this->lat - lat) * pi()/180 / 2), 2) + COS($this->lat * pi()/180) * COS(lat * pi()/180) * POWER(SIN(($this->lng - lng) *  pi()/180 / 2), 2) )) as distance")
                             ->where('utc_event_end_date', '>', Carbon::now())
                             ->whereNotIn('user_id', $blocked_ids)
                             ->where('is_private', 0)
@@ -229,7 +229,7 @@ class DashboardController extends Controller {
             }
             $ids_to_get = EventIntrest::select('event_id')->whereIn('interest_id', $user_intrests)->groupBy('event_id')
                             ->get()->toArray();
-            $data['events'] = Event::selectRaw("*,( 6371 * acos( cos( radians($this->lat))*cos( radians(lat) ) * cos( radians(lng) - radians($this->lng) ) + sin( radians($this->lat) ) * sin( radians(lat) ) ) ) AS distance")
+            $data['events'] = Event::selectRaw("*,3956 * 2 * ASIN(SQRT(POWER(SIN(($this->lat - lat) * pi()/180 / 2), 2) + COS($this->lat * pi()/180) * COS(lat * pi()/180) * POWER(SIN(($this->lng - lng) *  pi()/180 / 2), 2) )) as distance")
                             ->where('utc_event_end_date', '>', Carbon::now())
                             ->whereNotIn('user_id', $blocked_ids)
                             ->whereIn('id', $ids_to_get)
@@ -259,7 +259,7 @@ class DashboardController extends Controller {
             return sendSuccess('', $data);
         } else {
 //            echo 'asdsad';exit;
-            $data['events'] = Event::selectRaw("*,( 6371 * acos( cos( radians($this->lat))*cos( radians(lat) ) * cos( radians(lng) - radians($this->lng) ) + sin( radians($this->lat) ) * sin( radians(lat) ) ) ) AS distance")
+            $data['events'] = Event::selectRaw("*,3956 * 2 * ASIN(SQRT(POWER(SIN(($this->lat - lat) * pi()/180 / 2), 2) + COS($this->lat * pi()/180) * COS(lat * pi()/180) * POWER(SIN(($this->lng - lng) *  pi()/180 / 2), 2) )) as distance")
                             ->where('utc_event_end_date', '>', Carbon::now())
                             ->whereNotIn('user_id', $blocked_ids)
                             ->whereHas('user', function ($query) use($follower) {
@@ -288,7 +288,7 @@ class DashboardController extends Controller {
 
     function getEvent($id) {
         $blocked_ids = BlockUser::select('user_id')->where(array('blocked_id' => $this->userId))->get()->toArray();
-        $event = Event::selectRaw("*,( 6371 * acos( cos( radians($this->lat))*cos( radians(lat) ) * cos( radians(lng) - radians($this->lng) ) + sin( radians($this->lat) ) * sin( radians(lat) ) ) ) AS distance")
+        $event = Event::selectRaw("*,3956 * 2 * ASIN(SQRT(POWER(SIN(($this->lat - lat) * pi()/180 / 2), 2) + COS($this->lat * pi()/180) * COS(lat * pi()/180) * POWER(SIN(($this->lng - lng) *  pi()/180 / 2), 2) )) as distance")
                         ->whereNotIn('user_id', $blocked_ids)->with('user', 'likes.user', 'comments.user', 'attachments', 'interests', 'Invites.user', 'interests.interest', 'arrived.user')
                         ->with(['comments' => function($query)use ($blocked_ids) {
                                 $query->whereNotIn('user_id', $blocked_ids);

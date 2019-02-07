@@ -256,7 +256,7 @@ class ActionController extends Controller {
                 ->with('Invites')->orderBy('username', 'asc')
                 ->take(10)->skip($skip)
                 ->get();
-        $data['events'] = Event::selectRaw("*,( 6371 * acos( cos( radians($this->lat))*cos( radians(lat) ) * cos( radians(lng) - radians($this->lng) ) + sin( radians($this->lat) ) * sin( radians(lat) ) ) ) AS distance")
+        $data['events'] = Event::selectRaw("*,3956 * 2 * ASIN(SQRT(POWER(SIN(($this->lat - lat) * pi()/180 / 2), 2) + COS($this->lat * pi()/180) * COS(lat * pi()/180) * POWER(SIN(($this->lng - lng) *  pi()/180 / 2), 2) )) as distance")
                         ->where('utc_event_end_date', '>', Carbon::now())->where(function($query) use($q) {
                             $query->where('title', 'like', "%$q%")->orwhere('description', 'like', "%$q%");
                         })->where('utc_event_end_date', '>=', Carbon::now())
